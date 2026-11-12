@@ -34,131 +34,161 @@
 			</nav>
 			<div id="ssun"></div>
 			<br>
+        <!-- 카드 게임의 제목과 시작안내 문구를 표시하는 영역-->
 				<div class="wrapper">
-				<p><font size="5">도시들의 짝 맞추기 카드 게임</font></p>
-				<br>
-				<p><font size= "4">카드를 클릭하면 시작합니다.</font><p>
-				<br>
-				<p><span id="seconds">00</span>:<span id="tens">00</span></p>
-				<p id ="textext"></p>
-				<div id="container">
+				  <p><font size="5">도시들의 짝 맞추기 카드 게임</font></p>
+				  <br>
+				  <p><font size= "4">카드를 클릭하면 시작합니다.</font><p>
+				  <br>
+          <!-- 게임 진행 시간을 초와 0.01초 단위로 표시 -->
 
-			</div>
-			<script>
-			var myCards = document.getElementById('container');
-			var resultsArray = [];
-			var counter = 0;
-			var textext = document.getElementById('textext');
-			var seconds = 0; 
-			var tens = 0; 
-			var appendTens = document.getElementById("tens");
-			var appendSeconds = document.getElementById("seconds");
-			var Interval ;
-			var images = ['1su','2dg','3dj','4bs','5us'];
-	
-			var clone = images.slice(0); // duplicate array
-			var cards = images.concat(clone); // merge to arrays 
-	
-			// Shufffel function 
-			function shuffle(o){
-			for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i],   o[i] = o[j], o[j] = x);	
-			return o;
-			}
-			shuffle(cards);
-	
-			for (var i = 0; i < cards.length; i++) {
-			card = document.createElement('div')
-			card.dataset.item = cards[i];
-			card.dataset.view = "card";
-			myCards.appendChild(card);
-		
-			card.onclick = function () {
-				if (this.className != 'flipped' && this.className != 'correct'){
-					this.className = 'flipped';
-					var result = this.dataset.item;
-					resultsArray.push(result);
-					clearInterval(Interval);
-					Interval = setInterval(startTimer, 10);
-				}	
-	
-				if (resultsArray.length > 1) {
-		
-					if (resultsArray[0] === resultsArray[1]) {
-						check("correct");
-						counter ++;
-						win();
-						resultsArray = [];
-					}else {
-						check("reverse");
-						resultsArray = [];
-					}
-				}
-			}
-   
-			};
+				  <p><span id="seconds">00</span>:<span id="tens">00</span></p>
 
+          <!-- 게임 완료 후 결과 메시지를 출력하는 영역 -->
+				  <p id ="textext"></p>
 
-			var check = function(className) {
-  
-				var x = document.getElementsByClassName("flipped");
-				setTimeout(function() {
-					for(var i = (x.length - 1); i >= 0; i--) {
-					x[i].className = className;
-					}
-				},500);
-   
-			}
+          <!-- JavaScript에서 생성한 카드를 동적으로 추가하는 영역 -->
+				  <div id="container"></div>
 
-			var win = function () {
+          <script>
+            // 카드 생성 영역 및 게임 진행 상태를 관리하는 변수
+            var myCards = document.getElementById('container');
+            var resultsArray = [];
+            var counter = 0;
+            var textext = document.getElementById('textext');
+            var isCheck = false;
 
-				if(counter === 5) {
-					clearInterval(Interval);
-					textextext.innerHTML = "Your time was " + seconds + ":" + tens;
-				} 
-  
-			}
-     
-			function startTimer () {
-				tens++; 
-    
-				if(tens < 9){
-					appendTens.innerHTML = "0" + tens;
-				}
-    
-				if (tens > 9){
-					appendTens.innerHTML = tens;
-      
-				} 
-    
-				if (tens > 99) {
-				seconds++;
-				appendSeconds.innerHTML = "0" + seconds;
-				tens = 0;
-				appendTens.innerHTML = "0" + 0;
-				}
-    
-				if (seconds > 9){
-				appendSeconds.innerHTML = seconds;
-				}
-  
-			}
+            // 게임 경과 시간 및 화면 표시 요소
+            var seconds = 0; 
+            var tens = 0; 
+            var appendTens = document.getElementById("tens");
+            var appendSeconds = document.getElementById("seconds");
+            var Interval;
 
-			</script>
+            // 카드 종류 정의
+            var images = ['1su','2dg','3dj','4bs','5us'];
+            
+            // 카드 배열을 복제하여 동일한 카드가 2장씩 존재하도록 구성
+            var clone = images.slice(0); // duplicate array
+            var cards = images.concat(clone); // merge to arrays 
+        
+            // Fisher-Yates 셔플 알고리즘을 이용하여 카드 배열의 순서를 무작위로 변경
+            // 배열의 마지막 요소로부터 임의의 요소와 위치를 교환하는 방식
+            function shuffle(o){
+            for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i],   o[i] = o[j], o[j] = x);	
+            return o;
+            }
+            shuffle(cards);
+            
+            // 섞인 카드 배열을 기반으로 HTML 카드 요소를 동적으로 생성
+            // data-item에는 카드 식별자를, data-view에는 카드 표시 속성을 저장
+            for (var i = 0; i < cards.length; i++) {
+              card = document.createElement('div')
+              card.dataset.item = cards[i];
+              card.dataset.view = "card";
+              myCards.appendChild(card);
+              
+              // 카드 클릭 시 선택 상태 및 카드 일치 여부를 처리
+              card.onclick = function () {
+
+                // 카드 판정 중에는 추가 클릭을 무시
+                if(isCheck) return;
+
+                //이미 뒤집혔거나 정답 처리된 카드의 중복 선택 방지
+                if (this.className != 'flipped' && this.className != 'correct'){
+
+                  // 선택한 카드의 식별자 저장 및 타이머 실행
+                  this.className = 'flipped';
+                  var result = this.dataset.item;
+                  resultsArray.push(result);
+                  clearInterval(Interval);
+                  Interval = setInterval(startTimer, 10);
+                }	
+                
+                // 두 장의 카드가 선택되면 일치 여부 판정
+                if (resultsArray.length > 1) {
+
+                  // 두 장을 선택했으므로 판정 완료 전까지 클릭 차단
+                  isCheck = true;
+
+                  // 일치 했을 경우
+                  if (resultsArray[0] === resultsArray[1]) {
+                    check("correct");
+                    counter ++;
+                    win();
+                    resultsArray = [];
+                  } else {
+                    check("reverse");
+                    resultsArray = [];
+                  }
+                }
+              }
+            };
+            
+            // 선택된 카드의 결과에 따라 CSS 클래스를 변경
+            // 0.5초 후 correct 또는 reverse 클래스를 적용하여 카드 상태 전환
+            var check = function(className) {
+              var x = document.getElementsByClassName("flipped");
+              setTimeout(function() {
+                for(var i = (x.length - 1); i >= 0; i--) {
+                  x[i].className = className;
+                }
+
+                // 카드 상태 변경이 완료되면 다시 클릭 허용
+                isCheck = false;
+                
+              },500);
+            }
+            
+            // 5쌍의 카드가 모두 일치하면 게임 완료로 판정
+            // 진행 중인 타이머를 정지하고 최종 경과 시간을 출력
+            var win = function () {
+
+              if(counter === 5) {
+                clearInterval(Interval);
+                textext.innerHTML = "Your time was " + seconds + ":" + tens;
+              } 
+            }
+          
+            // 10ms 간격으로 호출되어 게임 경과 시간을 갱신
+            // 100회 누적 시 초 단위로 변환하고 화면에 표시
+            function startTimer () {
+              tens++; 
+          
+              if(tens <= 9){
+                appendTens.innerHTML = "0" + tens;
+              }
+          
+              if (tens > 9){
+                appendTens.innerHTML = tens;
+              } 
+          
+              if (tens > 99) {
+              seconds++;
+              appendSeconds.innerHTML = "0" + seconds;
+              tens = 0;
+              appendTens.innerHTML = "0" + 0;
+              }
+          
+              if (seconds > 9){
+              appendSeconds.innerHTML = seconds;
+              }
+            }
+          </script>
 			
-			<footer style="margin-top:400px;">
-				<div style="width:1024; margin:auto; color:#666666;">
-					<div class=qna>Q&A　　　<a href=intro.html>홈페이지소개</a></div>
-					<div class=sns>
-						<div img align=left style="margin:10px"><img width=40px src=img/fa.png>　<img width=40px src=img/in.png>　<img width=40px src=img/na.png>　<img width=40px src=img/ka.png></div>
-						<div img align=left ><img src=img/e.png>　sck01053@gmail.com</div>
-						<div img align=left ><img src=img/ph.png>　010. 9406. 8376</div>
-						<div style="text-align:left">Copyrightⓒ16Team.co.kr / All Right Resreved</div>
-					</div>
-					<a href="#" class="logo"><img align=right src=img/top.png></a>
-
-					<div class=logo1><a href="main.html" class="logo"><img height=150px src=img/logo.png></a></div>
-				</div>	
-			</footer>
-		</div>	
+          <footer style="margin-top:400px;">
+            <div style="width:1024; margin:auto; color:#666666;">
+              <div class=qna>Q&A　　　<a href=intro.html>홈페이지소개</a></div>
+              <div class=sns>
+                <div img align=left style="margin:10px"><img width=40px src=img/fa.png>　<img width=40px src=img/in.png>　<img width=40px src=img/na.png>　<img width=40px src=img/ka.png></div>
+                <div img align=left ><img src=img/e.png>　sck01053@gmail.com</div>
+                <div img align=left ><img src=img/ph.png>　010. 9406. 8376</div>
+                <div style="text-align:left">Copyrightⓒ16Team.co.kr / All Right Resreved</div>
+              </div>
+              <a href="#" class="logo"><img align=right src=img/top.png></a>
+              <div class=logo1><a href="main.html" class="logo"><img height=150px src=img/logo.png></a></div>
+            </div>	
+          </footer>
+		    </div>	
 	</body>
 </html>

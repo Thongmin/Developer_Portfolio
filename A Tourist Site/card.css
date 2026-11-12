@@ -1,6 +1,8 @@
+/*
+  * 카드 게임 고유 스타일 CSS
+*/
+
 * {margin : 0px; padding:0px;}
-
-
 
 /* Variabes */  
 $orange: #ffa600;
@@ -48,6 +50,7 @@ h3 {
   text-transform: uppercase;
 }
 
+/* 게임 진행 시간 표시 영역 */
 #seconds, #tens{
   font-size:2em;
 }
@@ -74,7 +77,7 @@ button{
     
 }
 
-
+/* 카드 배치 영역의 크기와 중앙 정렬 설정 */
 #container {
   width: 630px;
   margin: 10px auto;
@@ -87,6 +90,7 @@ button{
   
 }
 
+/* 카드의 기본 크기, 뒷면 패턴 및 초기 회전 상태 설정 */
 [data-view="card"] {
   transform: rotateY(180deg);
   width: 100px;
@@ -103,6 +107,7 @@ button{
   background-size: 64px 128px
 }
 
+/* 카드 선택 시 앞면으로 회전하는 애니메이션 */
 .flipped {
   transition: 0.6s;
     transform-style: preserve-3d;
@@ -110,6 +115,7 @@ button{
     transform: rotateY(0deg);
 }
 
+/* 불일치한 카드를 뒷면으로 되돌리는 애니메이션 */
 .reverse {
   transition: 0.6s;
     transform-style: preserve-3d;
@@ -117,6 +123,7 @@ button{
     transform: rotateY(180deg);
 }
 
+/* 일치한 카드는 앞면을 유지하고 투명도를 낮춰 구분 */
 .correct {
   opacity: .5;
   cursor: default;
@@ -138,25 +145,27 @@ $cards: 1su,2dg,3dj,4bs,5us;
 
 }
 
+/* 카드 식별자(data-item)에 따라 앞면 이미지 지정 */
+/* flipped와 correct 상태에서 해당 도시의 카드 이미지 표시 */
 .correct[data-item="1su"], .flipped[data-item="1su"] {
-	background: url("1su.png") left center no-repeat #fff;
+	background: url("img/1su.png") left center no-repeat #fff;
 	background-size: 100px 170px; 
 }
 
 .correct[data-item="2dg"], .flipped[data-item="2dg"] {
-	background: url("2dg.png") left center no-repeat #fff;
+	background: url("img/2dg.png") left center no-repeat #fff;
 	background-size: 100px 170px; 
 }
 .correct[data-item="3dj"], .flipped[data-item="3dj"] {
-	background: url("3dj.png") left center no-repeat #fff;
+	background: url("img/3dj.png") left center no-repeat #fff;
 	background-size: 100px 170px;
 }
 .correct[data-item="4bs"], .flipped[data-item="4bs"] {
-	background: url("4bs.png") left center no-repeat #fff;
+	background: url("img/4bs.png") left center no-repeat #fff;
 	background-size: 100px 170px;
 }
 .correct[data-item="5us"], .flipped[data-item="5us"] {
-	background: url("5us.png") left center no-repeat #fff;
+	background: url("img/5us.png") left center no-repeat #fff;
 	background-size: 100px 170px;
 }
 
